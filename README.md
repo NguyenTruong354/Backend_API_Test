@@ -29,7 +29,7 @@ node index.js
 
 ## 5. Truy cập API
 
-- Mặc định API sẽ chạy trên `http://localhost:3000` (hoặc cổng được cấu hình).
+- Mặc định API sẽ chạy trên `http://localhost:5000` (hoặc cổng được cấu hình).
 
 ---
 
