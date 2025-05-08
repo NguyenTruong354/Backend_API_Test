@@ -1,0 +1,1 @@
+Xử lý logic cho các route, nhận request và trả response.

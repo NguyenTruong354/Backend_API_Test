@@ -1,0 +1,1 @@
+Chứa các middleware cho Express (xác thực, kiểm tra, ...).

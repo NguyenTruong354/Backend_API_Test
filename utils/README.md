@@ -1,0 +1,1 @@
+Các hàm tiện ích dùng chung cho toàn dự án.

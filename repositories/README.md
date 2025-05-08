@@ -1,0 +1,1 @@
+Xử lý truy vấn dữ liệu, giao tiếp với database.

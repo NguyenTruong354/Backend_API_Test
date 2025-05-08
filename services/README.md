@@ -1,0 +1,1 @@
+Chứa các logic nghiệp vụ, xử lý dữ liệu.
