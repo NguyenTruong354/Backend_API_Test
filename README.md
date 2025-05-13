@@ -1,9 +1,9 @@
-# Hướng dẫn cài đặt và chạy dự án
+# Hướng dẫn cài đặt và chạy dự án backend_api
 
 ## 1. Clone dự án
 
 ```bash
-git clone https://github.com/your-username/backend_api.git
+git clone https://github.com/NguyenTruong354/Backend_API_Test.git
 cd backend_api
 ```
 
