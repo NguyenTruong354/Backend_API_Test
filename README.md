@@ -1,24 +1,43 @@
-# Hướng dẫn cài đặt và chạy dự án backend_api
+# Backend_API_Test
 
-## 1. Clone dự án
+## Cấu trúc thư mục
+- `index.js`: Điểm khởi động ứng dụng
+- `config/`: Cấu hình kết nối database, biến môi trường
+- `controller/`: Xử lý logic cho các route, nhận request và trả response
+- `middleware/`: Các middleware cho Express (xác thực, kiểm tra lỗi, ...)
+- `models/`: Định nghĩa các schema/model cho database (Sequelize)
+- `repositories/`: Xử lý truy vấn dữ liệu, giao tiếp với database
+- `routes/`: Định nghĩa các endpoint API và ánh xạ tới controller
+- `services/`: Chứa các logic nghiệp vụ, xử lý dữ liệu
+- `utils/`: Các hàm tiện ích dùng chung, logger, constants
+- `logs/`: Chứa file log info và error
 
+## Hướng dẫn cài đặt và chạy dự án
+
+### 1. Clone dự án
 ```bash
 git clone https://github.com/NguyenTruong354/Backend_API_Test.git
-cd backend_api
+cd Backend_API_Test
 ```
 
-## 2. Cài đặt các package cần thiết
-
+### 2. Cài đặt các package cần thiết
 ```bash
 npm install
 ```
 
-## 3. Thiết lập cấu hình (nếu cần)
+### 3. Thiết lập cấu hình
+- Tạo file `.env` ở thư mục gốc với nội dung ví dụ:
+```
+DB_NAME=data_apilothub
+DB_USER=root
+DB_PASSWORD=1234
+DB_HOST=localhost
+PORT=5000
+JWT_SECRET=your_secret_key
+```
+- Đảm bảo đã tạo database và các bảng cần thiết trong MySQL.
 
-- Cập nhật các file cấu hình trong thư mục `config/` (nếu có yêu cầu riêng).
-
-## 4. Chạy dự án
-
+### 4. Chạy dự án
 ```bash
 npm start
 ```
@@ -27,10 +46,14 @@ Hoặc:
 node index.js
 ```
 
-## 5. Truy cập API
+### 5. Truy cập API
+- Mặc định API sẽ chạy trên `http://localhost:5000`
+- Một số endpoint mẫu:
+  - `GET /api/challenges?userId=1` — Lấy danh sách challenge của user
+  - `GET /api/challenges/:id?userId=1` — Lấy chi tiết 1 challenge
+  - (Các endpoint khác xem trong thư mục `routes/`)
 
-- Mặc định API sẽ chạy trên `http://localhost:5000` (hoặc cổng được cấu hình).
+### 6. Logging
+- Log info và error sẽ được ghi vào thư mục `logs/` (info.log, error.log)
 
 ---
-
-Nếu cần thiết lập biến môi trường, hãy tạo file `.env` trong thư mục gốc và thêm các biến phù hợp.
