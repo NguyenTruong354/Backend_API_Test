@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const challengeController = require('../controllers/challengeController');
+const challengeController = require('../controller/challengeController');
 const { authenticate } = require('../middleware/auth');
 
 // All routes require authentication

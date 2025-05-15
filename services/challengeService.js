@@ -1,4 +1,5 @@
-const { Challenge, CommunityMember } = require('../models');
+const Challenge = require('../models/challenge');
+const CommunityMember = require('../models/communityMember');
 
 class ChallengeService {
   /**
