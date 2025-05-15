@@ -12,7 +12,6 @@ exports.getAllChallenges = async (req, res, next) => {
     return res.status(200).json(successResponse('Challenges retrieved successfully', challenges));
   } catch (error) {
     logger.error(`Error retrieving challenges for user ${req.user.id}: ${error.message}`);
-    next(error);
   }
 };
 
@@ -32,6 +31,5 @@ exports.getChallenge = async (req, res, next) => {
     return res.status(200).json(successResponse('Challenge retrieved successfully', challenge));
   } catch (error) {
     logger.error(`Error retrieving challenge ${req.params.id} for user ${req.user.id}: ${error.message}`);
-    next(error);
   }
 };
