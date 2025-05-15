@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize('data_apilothub', 'root', 'thanhliemk4', {
+const sequelize = new Sequelize('data_apilothub', 'root', '1234', {
     host: 'localhost',
     dialect: 'mysql',
     logging: false,
