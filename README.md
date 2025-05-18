@@ -1,5 +1,9 @@
 # Backend_API_Test
 
+## Mô tả dự án
+Đây là dự án backend API mẫu sử dụng Node.js, Express, Sequelize (MySQL) để quản lý các thử thách (challenge) cho cộng đồng. Dự án hỗ trợ xác thực JWT, phân quyền, logging với Winston, cấu trúc rõ ràng theo mô hình service-repository-controller, dễ mở rộng và bảo trì.
+
+
 ## Cấu trúc thư mục
 - `index.js`: Điểm khởi động ứng dụng
 - `config/`: Cấu hình kết nối database, biến môi trường
@@ -11,6 +15,7 @@
 - `services/`: Chứa các logic nghiệp vụ, xử lý dữ liệu
 - `utils/`: Các hàm tiện ích dùng chung, logger, constants
 - `logs/`: Chứa file log info và error
+- `docs/`: Chứa tài liệu OpenAPI (Swagger)
 
 ## Hướng dẫn cài đặt và chạy dự án
 
@@ -52,8 +57,17 @@ node index.js
   - `GET /api/challenges?userId=1` — Lấy danh sách challenge của user
   - `GET /api/challenges/:id?userId=1` — Lấy chi tiết 1 challenge
   - (Các endpoint khác xem trong thư mục `routes/`)
+- API chạy swagger: `http://localhost:5000/api-docs`
 
 ### 6. Logging
 - Log info và error sẽ được ghi vào thư mục `logs/` (info.log, error.log)
 
+### 7. Tài liệu API (OpenAPI/Swagger)
+- File tài liệu OpenAPI 3.0: `docs/openapi.yaml`
+- Có thể sử dụng [Swagger Editor Online](https://editor.swagger.io/) để xem và thử API:
+  1. Truy cập https://editor.swagger.io/
+  2. Chọn "File" → "Import File" và chọn file `docs/openapi.yaml` trong dự án
+  3. Xem chi tiết các endpoint, schema, response mẫu, thử API trực tiếp
+
 ---
+
