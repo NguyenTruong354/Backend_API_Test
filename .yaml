@@ -1,0 +1,77 @@
+openapi: 3.0.0
+info:
+  title: Challenge API
+  version: 1.0.0
+  description: API để lấy thông tin các challenge, có thể lọc theo userId
+
+servers:
+  - url: http://localhost:5000
+    description: Local server
+
+paths:
+  /api/challenges:
+    get:
+      summary: Lấy danh sách challenge theo userId
+      parameters:
+        - in: query
+          name: userId
+          required: false
+          schema:
+            type: integer
+          description: ID của người dùng để lọc challenge
+      responses:
+        '200':
+          description: Danh sách challenge
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Challenge'
+
+  /api/challenges/{id}:
+    get:
+      summary: Lấy chi tiết challenge theo ID và userId
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID của challenge
+        - in: query
+          name: userId
+          required: false
+          schema:
+            type: integer
+          description: ID của người dùng (để kiểm tra quyền truy cập hoặc lọc)
+      responses:
+        '200':
+          description: Chi tiết challenge
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Challenge'
+        '404':
+          description: Không tìm thấy challenge
+
+components:
+  schemas:
+    Challenge:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        title:
+          type: string
+          example: "Challenge đầu tiên"
+        description:
+          type: string
+          example: "Chi tiết về challenge"
+        level:
+          type: string
+          example: "Dễ"
+        userId:
+          type: integer
+          example: 1
