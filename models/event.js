@@ -1,37 +1,91 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const CommunityMember = require('./communityMember');
+module.exports = (sequelize, DataTypes) => {
+    const Event = sequelize.define('Event', {
+        id: {
+            type: DataTypes.BIGINT,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        slug: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        host: {
+            type: DataTypes.STRING
+        },
+        community_member_id: {
+            type: DataTypes.BIGINT,
+            allowNull: false
+        },
+        in_person_location: {
+            type: DataTypes.TEXT
+        },
+        starts_at: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
+        ends_at: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
+        created_at: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
+        updated_at: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
+        url: {
+            type: DataTypes.TEXT,
+            allowNull: false
+        },
+        cover_image_url: {
+            type: DataTypes.TEXT
+        },
+        description: {
+            type: DataTypes.TEXT
+        },
+        price: {
+            type: DataTypes.STRING(50)
+        },
+        max_attendees: {
+            type: DataTypes.INTEGER
+        },
+        current_attendees: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0
+        },
+        status: {
+            type: DataTypes.ENUM('upcoming', 'ongoing', 'finished', 'cancelled'),
+            defaultValue: 'upcoming'
+        },
+        category: {
+            type: DataTypes.STRING(100)
+        },
+        location_url: {
+            type: DataTypes.TEXT
+        }
+    }, {
+        tableName: 'events',
+        underscored: true,
+        timestamps: false
+    });
 
-const Event = sequelize.define('events', {
-    id: { type: DataTypes.BIGINT, primaryKey: true },
-    name: DataTypes.STRING,
-    slug: DataTypes.STRING,
-    user_id: DataTypes.BIGINT,
-    community_member_id: DataTypes.BIGINT,
-    created_at: DataTypes.DATE,
-    updated_at: DataTypes.DATE,
-    starts_at: DataTypes.DATE,
-    ends_at: DataTypes.DATE,
-    duration_in_seconds: DataTypes.INTEGER,
-    location_type: DataTypes.STRING,
-    url: DataTypes.TEXT,
-    member_email: DataTypes.STRING,
-    member_name: DataTypes.STRING,
-    body: DataTypes.TEXT,
-    zapier_display_title: DataTypes.STRING,
-    likes_count: DataTypes.INTEGER,
-    comments_count: DataTypes.INTEGER,
-    member_avatar_base64: DataTypes.TEXT('long'),
-    cover_image_base64: DataTypes.TEXT('long'),
-    space_id: DataTypes.BIGINT,
-    space_slug: DataTypes.STRING,
-    space_name: DataTypes.STRING,
-    space_community_id: DataTypes.BIGINT
-});
+    Event.associate = (models) => {
+        Event.belongsTo(models.CommunityMember, {
+            foreignKey: 'community_member_id',
+            as: 'host_member'
+        });
 
-Event.belongsTo(CommunityMember, {
-    foreignKey: 'community_member_id',
-    as: 'member'
-});
+        Event.hasMany(models.PostChallenge, {
+            foreignKey: 'event_id',
+            as: 'challenges'
+        });
+    };
 
-module.exports = Event;
+    return Event;
+};
