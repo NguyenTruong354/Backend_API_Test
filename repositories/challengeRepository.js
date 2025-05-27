@@ -1,5 +1,5 @@
 const Challenge = require('../models/challenge');
-const { Op } = require('sequelize'); // Import Op để sử dụng trong các điều kiện truy vấn phức tạp
+const { Op } = require('sequelize');
 
 class ChallengeRepository {
     /**
@@ -10,44 +10,68 @@ class ChallengeRepository {
      */
     async createChallenge(challengeData) {
         try {
+            if (!challengeData || typeof challengeData !== 'object') {
+                throw new Error('Dữ liệu thử thách không hợp lệ');
+            }
+
+            const requiredFields = ['title', 'description', 'community_member_id'];
+            for (const field of requiredFields) {
+                if (!challengeData[field]) {
+                    throw new Error(`Trường ${field} là bắt buộc`);
+                }
+            }
+
             const challenge = await Challenge.create(challengeData);
             return challenge.toJSON();
         } catch (error) {
-            // Ghi log lỗi ở đây nếu cần thiết, ví dụ: console.error(error);
+            if (error.name === 'SequelizeValidationError') {
+                throw new Error(`Lỗi validation: ${error.message}`);
+            }
             throw new Error(`Lỗi khi tạo thử thách: ${error.message}`);
         }
     }
 
     /**
-     * Lấy tất cả các thử thách với các bộ lọc tùy chọn.
-     * @param {object} filters - Các điều kiện lọc (ví dụ: { status: 'pending', community_member_id: 1 }).
-     * @returns {Promise<Array<object>>} - Mảng các đối tượng thử thách.
+     * Lấy tất cả các thử thách với các bộ lọc tùy chọn và phân trang.
+     * @param {object} options - Các tùy chọn lọc và phân trang.
+     * @param {object} options.filters - Các điều kiện lọc.
+     * @param {number} options.page - Trang hiện tại (mặc định: 1).
+     * @param {number} options.limit - Số lượng bản ghi mỗi trang (mặc định: 10).
+     * @returns {Promise<{data: Array<object>, pagination: object}>} - Dữ liệu và thông tin phân trang.
      * @throws {Error} - Ném lỗi nếu có vấn đề khi lấy danh sách thử thách.
      */
-    async getAllChallenges(filters = {}) {
+    async getAllChallenges({ filters = {}, page = 1, limit = 10 } = {}) {
         try {
-            const whereClause = {}; // Mệnh đề WHERE cho truy vấn
+            const whereClause = {};
 
-            // Áp dụng các bộ lọc nếu có
             if (filters.status) {
                 whereClause.status = filters.status;
             }
             if (filters.community_member_id) {
                 whereClause.community_member_id = filters.community_member_id;
             }
-            if (filters.is_weekly !== undefined) { // Lọc theo is_weekly nếu được cung cấp
+            if (filters.is_weekly !== undefined) {
                 whereClause.is_weekly = filters.is_weekly;
             }
-            // Bạn có thể thêm các bộ lọc khác dựa trên các trường của model Challenge.js
 
-            const challenges = await Challenge.findAll({
+            const offset = (page - 1) * limit;
+
+            const { count, rows } = await Challenge.findAndCountAll({
                 where: whereClause,
-                order: [['created_at', 'DESC']], // Sắp xếp theo ngày tạo mới nhất
-                // Nếu bạn muốn lấy cả thông tin người tạo (CommunityMember), bạn có thể thêm 'include'
-                // include: [{ model: CommunityMember, as: 'member' }]
+                order: [['created_at', 'DESC']],
+                limit,
+                offset,
             });
 
-            return challenges.map(challenge => challenge.toJSON());
+            return {
+                data: rows.map(challenge => challenge.toJSON()),
+                pagination: {
+                    total: count,
+                    page,
+                    limit,
+                    totalPages: Math.ceil(count / limit)
+                }
+            };
         } catch (error) {
             throw new Error(`Lỗi khi lấy danh sách thử thách: ${error.message}`);
         }
@@ -61,17 +85,17 @@ class ChallengeRepository {
      */
     async getChallengeById(id) {
         try {
-            const challenge = await Challenge.findByPk(id, {
-                // Nếu bạn muốn lấy cả thông tin người tạo (CommunityMember)
-                // include: [{ model: CommunityMember, as: 'member' }]
-            });
+            if (!id) {
+                throw new Error('ID thử thách không được để trống');
+            }
+
+            const challenge = await Challenge.findByPk(id);
 
             if (!challenge) {
                 throw new Error('Không tìm thấy thử thách với ID đã cho.');
             }
             return challenge.toJSON();
         } catch (error) {
-            // Phân biệt lỗi không tìm thấy và lỗi hệ thống
             if (error.message === 'Không tìm thấy thử thách với ID đã cho.') {
                 throw error;
             }
@@ -88,19 +112,44 @@ class ChallengeRepository {
      */
     async updateChallenge(id, updateData) {
         try {
+            if (!id) {
+                throw new Error('ID thử thách không được để trống');
+            }
+
+            if (!updateData || typeof updateData !== 'object') {
+                throw new Error('Dữ liệu cập nhật không hợp lệ');
+            }
+
             const challenge = await Challenge.findByPk(id);
             if (!challenge) {
                 throw new Error('Không tìm thấy thử thách để cập nhật.');
             }
 
-            // Cập nhật các trường được phép
-            // Ví dụ: title, description, reward_type, reward_value, due_date, status, is_weekly, recurrence_rule
-            // Cần cẩn thận không cho phép cập nhật các trường nhạy cảm hoặc không nên thay đổi trực tiếp
-            const updatedChallenge = await challenge.update(updateData);
+            // Danh sách các trường được phép cập nhật
+            const allowedFields = [
+                'title',
+                'description',
+                'reward_type',
+                'reward_value',
+                'due_date',
+                'status',
+                'is_weekly',
+                'recurrence_rule'
+            ];
+
+            // Lọc chỉ những trường được phép cập nhật
+            const filteredUpdateData = Object.keys(updateData)
+                .filter(key => allowedFields.includes(key))
+                .reduce((obj, key) => {
+                    obj[key] = updateData[key];
+                    return obj;
+                }, {});
+
+            const updatedChallenge = await challenge.update(filteredUpdateData);
             return updatedChallenge.toJSON();
         } catch (error) {
-            if (error.message === 'Không tìm thấy thử thách để cập nhật.') {
-                throw error;
+            if (error.name === 'SequelizeValidationError') {
+                throw new Error(`Lỗi validation: ${error.message}`);
             }
             throw new Error(`Lỗi khi cập nhật thử thách: ${error.message}`);
         }
@@ -114,6 +163,10 @@ class ChallengeRepository {
      */
     async deleteChallenge(id) {
         try {
+            if (!id) {
+                throw new Error('ID thử thách không được để trống');
+            }
+
             const challenge = await Challenge.findByPk(id);
             if (!challenge) {
                 throw new Error('Không tìm thấy thử thách để xóa.');
@@ -122,59 +175,86 @@ class ChallengeRepository {
             await challenge.destroy();
             return { id, deleted: true, message: 'Thử thách đã được xóa thành công.' };
         } catch (error) {
-            if (error.message === 'Không tìm thấy thử thách để xóa.') {
-                throw error;
-            }
             throw new Error(`Lỗi khi xóa thử thách: ${error.message}`);
         }
     }
 
     /**
-     * Tìm kiếm thử thách theo tiêu đề hoặc mô tả.
+     * Tìm kiếm thử thách theo tiêu đề hoặc mô tả với phân trang.
      * @param {string} searchTerm - Từ khóa tìm kiếm.
-     * @returns {Promise<Array<object>>} - Mảng các thử thách phù hợp.
+     * @param {object} options - Tùy chọn phân trang.
+     * @param {number} options.page - Trang hiện tại (mặc định: 1).
+     * @param {number} options.limit - Số lượng bản ghi mỗi trang (mặc định: 10).
+     * @returns {Promise<{data: Array<object>, pagination: object}>} - Kết quả tìm kiếm và thông tin phân trang.
      * @throws {Error} - Ném lỗi nếu có vấn đề khi tìm kiếm.
      */
-    async searchChallenges(searchTerm) {
+    async searchChallenges(searchTerm, { page = 1, limit = 10 } = {}) {
         try {
             if (!searchTerm || typeof searchTerm !== 'string' || searchTerm.trim() === '') {
-                return []; // Trả về mảng rỗng nếu searchTerm không hợp lệ
+                return { data: [], pagination: { total: 0, page, limit, totalPages: 0 } };
             }
-            const challenges = await Challenge.findAll({
+
+            const offset = (page - 1) * limit;
+
+            const { count, rows } = await Challenge.findAndCountAll({
                 where: {
                     [Op.or]: [
                         { title: { [Op.like]: `%${searchTerm}%` } },
                         { description: { [Op.like]: `%${searchTerm}%` } }
-                        // Bạn có thể thêm các trường khác để tìm kiếm nếu cần
                     ]
                 },
                 order: [['created_at', 'DESC']],
+                limit,
+                offset,
             });
-            return challenges.map(challenge => challenge.toJSON());
+
+            return {
+                data: rows.map(challenge => challenge.toJSON()),
+                pagination: {
+                    total: count,
+                    page,
+                    limit,
+                    totalPages: Math.ceil(count / limit)
+                }
+            };
         } catch (error) {
             throw new Error(`Lỗi khi tìm kiếm thử thách: ${error.message}`);
         }
     }
 
-    // Các phương thức tùy chỉnh khác có thể được thêm vào đây
-    // Ví dụ: getChallengesByStatus, getChallengesByCommunityMember, etc.
-
     /**
-     * Lấy thử thách theo trạng thái.
-     * @param {string} status - Trạng thái của thử thách (ví dụ: 'pending', 'done').
-     * @returns {Promise<Array<object>>} - Mảng các thử thách có trạng thái tương ứng.
+     * Lấy thử thách theo trạng thái với phân trang.
+     * @param {string} status - Trạng thái của thử thách.
+     * @param {object} options - Tùy chọn phân trang.
+     * @param {number} options.page - Trang hiện tại (mặc định: 1).
+     * @param {number} options.limit - Số lượng bản ghi mỗi trang (mặc định: 10).
+     * @returns {Promise<{data: Array<object>, pagination: object}>} - Kết quả và thông tin phân trang.
      * @throws {Error} - Ném lỗi nếu có vấn đề khi truy vấn.
      */
-    async getChallengesByStatus(status) {
+    async getChallengesByStatus(status, { page = 1, limit = 10 } = {}) {
         try {
             if (!status) {
                 throw new Error('Trạng thái không được để trống.');
             }
-            const challenges = await Challenge.findAll({
+
+            const offset = (page - 1) * limit;
+
+            const { count, rows } = await Challenge.findAndCountAll({
                 where: { status },
                 order: [['created_at', 'DESC']],
+                limit,
+                offset,
             });
-            return challenges.map(challenge => challenge.toJSON());
+
+            return {
+                data: rows.map(challenge => challenge.toJSON()),
+                pagination: {
+                    total: count,
+                    page,
+                    limit,
+                    totalPages: Math.ceil(count / limit)
+                }
+            };
         } catch (error) {
             throw new Error(`Lỗi khi lấy thử thách theo trạng thái: ${error.message}`);
         }
