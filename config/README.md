@@ -5,4 +5,4 @@ hello
 mto hai ba
 bon nam sau
 hohho
-cho hao cho hao
+chó hào chó hào
