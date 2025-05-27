@@ -2,12 +2,15 @@ const jwt = require('jsonwebtoken');
 const sequelize = require('../config/database');
 const { Sequelize, DataTypes } = require('sequelize');
 
-// Kiểm tra nếu có người dùng với ID từ token JWT
+/**
+ * Hàm lấy thông tin người dùng theo ID
+ * @param {number} userId - ID của người dùng cần tìm
+ * @returns {Object|null} - Thông tin người dùng hoặc null nếu không tìm thấy
+ */
 async function getUserById(userId) {
   try {
-    // Tạo truy vấn SQL trực tiếp 
     const [results] = await sequelize.query(
-      'SELECT * FROM users WHERE id = :userId',
+      'SELECT * FROM users WHERE id = :userId AND is_active = true',
       {
         replacements: { userId },
         type: Sequelize.QueryTypes.SELECT
@@ -23,10 +26,10 @@ async function getUserById(userId) {
 /**
  * Middleware xác thực người dùng
  * Kiểm tra và xác thực JWT token từ header 'Authorization'
+ * Thêm kiểm tra trạng thái active của người dùng
  */
 const authenticate = async (req, res, next) => {
   try {
-    // Lấy token từ header Authorization
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -36,7 +39,6 @@ const authenticate = async (req, res, next) => {
       });
     }
     
-    // Tách token từ chuỗi "Bearer [token]"
     const token = authHeader.split(' ')[1];
     
     if (!token) {
@@ -47,22 +49,34 @@ const authenticate = async (req, res, next) => {
     }
     
     try {
-      // Xác thực token với SECRET_KEY từ biến môi trường
-      // Nếu không có biến môi trường, sử dụng khóa mặc định (chỉ dùng trong quá trình phát triển)
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_jwt_secret_key_for_development');
-      
-      // Tìm người dùng từ ID trong token
       const user = await getUserById(decoded.id);
       
       if (!user) {
         return res.status(401).json({ 
           success: false, 
-          message: 'Người dùng không tồn tại' 
+          message: 'Tài khoản không tồn tại hoặc đã bị vô hiệu hóa' 
+        });
+      }
+
+      // Kiểm tra nếu tài khoản bị khóa
+      if (!user.is_active) {
+        return res.status(403).json({
+          success: false,
+          message: 'Tài khoản của bạn đã bị khóa'
         });
       }
       
-      // Gán thông tin người dùng vào đối tượng req để sử dụng trong các middleware/controller tiếp theo
-      req.user = user;
+      // Thêm thông tin bảo mật vào user object
+      const sanitizedUser = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        is_active: user.is_active,
+        last_login: user.last_login
+      };
+      
+      req.user = sanitizedUser;
       next();
     } catch (error) {
       if (error instanceof jwt.JsonWebTokenError) {
@@ -73,7 +87,7 @@ const authenticate = async (req, res, next) => {
       } else if (error instanceof jwt.TokenExpiredError) {
         return res.status(401).json({ 
           success: false, 
-          message: 'Token đã hết hạn' 
+          message: 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại' 
         });
       } else {
         return res.status(500).json({ 
@@ -93,10 +107,9 @@ const authenticate = async (req, res, next) => {
 
 /**
  * Middleware xác thực quyền admin
- * Kiểm tra xem người dùng đã xác thực có quyền admin hay không
+ * Kiểm tra chi tiết các quyền của người dùng
  */
 const authorizeAdmin = (req, res, next) => {
-  // Đảm bảo người dùng đã được xác thực trước đó
   if (!req.user) {
     return res.status(401).json({ 
       success: false, 
@@ -104,11 +117,19 @@ const authorizeAdmin = (req, res, next) => {
     });
   }
   
-  // Kiểm tra nếu người dùng có quyền admin
+  // Kiểm tra chi tiết các quyền
   if (req.user.role !== 'admin') {
     return res.status(403).json({ 
       success: false, 
-      message: 'Không có quyền truy cập tài nguyên này' 
+      message: 'Bạn không có quyền truy cập tài nguyên này' 
+    });
+  }
+
+  // Kiểm tra trạng thái tài khoản
+  if (!req.user.is_active) {
+    return res.status(403).json({
+      success: false,
+      message: 'Tài khoản của bạn đã bị khóa'
     });
   }
   
@@ -121,10 +142,22 @@ const authorizeAdmin = (req, res, next) => {
  * @returns {String} - JWT token
  */
 const generateToken = (user) => {
+  // Thêm các thông tin bảo mật vào payload
+  const payload = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 giờ
+  };
+
   return jwt.sign(
-    { id: user.id, email: user.email },
+    payload,
     process.env.JWT_SECRET || 'default_jwt_secret_key_for_development',
-    { expiresIn: '24h' } // Token hết hạn sau 24 giờ
+    { 
+      expiresIn: '24h',
+      algorithm: 'HS256'
+    }
   );
 };
 
