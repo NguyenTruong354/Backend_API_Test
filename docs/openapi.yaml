@@ -10,25 +10,45 @@ paths:
   /api/challenges:
     get:
       summary: Lấy danh sách các thử thách bài đăng
+      description: Lấy danh sách tất cả thử thách bài đăng
+      tags:
+        - Challenges
       parameters:
         - in: query
           name: userId
           required: false
           schema:
             type: integer
-          description: ID của người dùng để lọc các thử thách
+          description: ID của người dùng để theo dõi hành động (không ảnh hưởng đến kết quả truy vấn)
       responses:
         "200":
-          description: Danh sách các thử thách bài đăng
+          description: Thành công - Danh sách các thử thách bài đăng
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PostChallenge"
-  /api/challenges/{id}:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message: 
+                    type: string
+                    example: "Post challenges retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PostChallenge"
+        "500":
+          description: Lỗi máy chủ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"  /api/challenges/{id}:
     get:
       summary: Lấy chi tiết thử thách bài đăng theo ID
+      description: Lấy thông tin chi tiết của một thử thách bài đăng dựa trên ID
+      tags:
+        - Challenges
       parameters:
         - in: path
           name: id
@@ -41,18 +61,49 @@ paths:
           required: false
           schema:
             type: integer
-          description: ID của người dùng để lọc thử thách
+          description: ID của người dùng để theo dõi hành động (không ảnh hưởng đến kết quả truy vấn)
       responses:
         "200":
-          description: Chi tiết thử thách bài đăng
+          description: Thành công - Chi tiết thử thách bài đăng
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PostChallenge"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                    example: "Post challenge retrieved successfully"
+                  data:
+                    $ref: "#/components/schemas/PostChallenge"
         "404":
           description: Không tìm thấy thử thách bài đăng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Lỗi máy chủ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "error"
+        message:
+          type: string
+          example: "Failed to retrieve post challenges"
+        error:
+          type: string
+          example: "Internal Server Error"
     PostChallenge:
       type: object
       properties:
