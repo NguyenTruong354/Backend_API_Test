@@ -25,6 +25,6 @@ router.get('/', challengeController.getAllChallenges);
  * @desc    Get a challenge by ID
  * @access  Private
  */
-router.get('/:id', challengeController.getChallenge);
+router.get('/:id', challengeController.getChallengeById);
 
 module.exports = router;
