@@ -16,12 +16,12 @@ const openApiSpec = yaml.load(fs.readFileSync('./docs/openapi.yaml', 'utf8'));
 // Serve Swagger UI at /api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
 
-// app.use(cors()); // Uncomment if CORS is needed
+app.use(cors());
 app.use(express.json());
 
 const port = process.env.PORT || 5000;
 
-Hook: app.get('/', (req, res) => res.send('Hello World!'));
+app.get('/', (req, res) => res.send('Hello World!'));
 app.use('/api/challenges', challengeRoutes);
 
 // Sync Sequelize models with database

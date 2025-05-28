@@ -1,58 +1,5 @@
-const sequelize = require('../config/database');
-const { DataTypes } = require('sequelize');
-
-// Định nghĩa model PostChallenge
-const PostChallenge = sequelize.define('PostChallenge', {
-    id: {
-        type: DataTypes.BIGINT,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    type: {
-        type: DataTypes.ENUM('comment', 'event'),
-        allowNull: false
-    },
-    promo_id: {
-        type: DataTypes.BIGINT,
-        allowNull: true
-    },
-    challenge_id: {
-        type: DataTypes.BIGINT,
-        allowNull: true
-    },
-    post_id: {
-        type: DataTypes.BIGINT,
-        allowNull: true
-    },
-    event_id: {
-        type: DataTypes.BIGINT,
-        allowNull: true
-    },
-    is_show: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    },
-    points_reward: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0
-    },
-    due_date: {
-        type: DataTypes.DATE,
-        allowNull: true
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        allowNull: false
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        allowNull: false
-    }
-}, {
-    tableName: 'post_challenges',
-    underscored: true,
-    timestamps: false
-});
+const { Op } = require('sequelize');
+const PostChallenge = require('../models/postChallenge');
 
 class PostChallengeRepository {
     constructor() {
@@ -72,6 +19,24 @@ class PostChallengeRepository {
             return postChallenges.map(postChallenge => postChallenge.toJSON());
         } catch (error) {
             throw new Error(`Lỗi khi lấy danh sách PostChallenge: ${error.message}`);
+        }
+    }
+
+    /**
+     * Lấy danh sách PostChallenge với các bộ lọc.
+     * @param {Object} whereCondition - Các điều kiện lọc
+     * @returns {Promise<Array<object>>} - Danh sách PostChallenge đã lọc.
+     * @throws {Error} - Ném lỗi nếu có vấn đề khi lấy danh sách PostChallenge.
+     */
+    async getPostChallengesWithFilters(whereCondition = {}) {
+        try {
+            const postChallenges = await this.model.findAll({
+                where: whereCondition,
+                order: [['created_at', 'DESC']]
+            });
+            return postChallenges.map(postChallenge => postChallenge.toJSON());
+        } catch (error) {
+            throw new Error(`Lỗi khi lấy danh sách PostChallenge với bộ lọc: ${error.message}`);
         }
     }
 

@@ -1,11 +1,6 @@
-const PostChallengeService = require('../services/PostChallengeService');
-const PostChallengeRepository = require('../repositories/PostChallengeRepository');
+const postChallengeService = require('../services/PostChallengeService');
 const { successResponse, errorResponse } = require('../utils/constants');
 const logger = require('../utils/logger');
-
-// Khởi tạo PostChallengeService với PostChallengeRepository
-const postChallengeRepository = new PostChallengeRepository();
-const postChallengeService = new PostChallengeService(postChallengeRepository);
 
 /**
  * @description Get all post challenges
