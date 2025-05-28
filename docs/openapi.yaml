@@ -13,13 +13,7 @@ paths:
       description: Lấy danh sách tất cả thử thách bài đăng
       tags:
         - Challenges
-      parameters:
-        - in: query
-          name: userId
-          required: false
-          schema:
-            type: integer
-          description: ID của người dùng để theo dõi hành động (không ảnh hưởng đến kết quả truy vấn)
+      parameters: []
       responses:
         "200":
           description: Thành công - Danh sách các thử thách bài đăng
@@ -31,7 +25,7 @@ paths:
                   status:
                     type: string
                     example: "success"
-                  message: 
+                  message:
                     type: string
                     example: "Post challenges retrieved successfully"
                   data:
@@ -43,7 +37,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"  /api/challenges/{id}:
+                $ref: "#/components/schemas/Error"
+  /api/challenges/{id}:
     get:
       summary: Lấy chi tiết thử thách bài đăng theo ID
       description: Lấy thông tin chi tiết của một thử thách bài đăng dựa trên ID
@@ -56,12 +51,6 @@ paths:
           schema:
             type: integer
           description: ID của thử thách bài đăng
-        - in: query
-          name: userId
-          required: false
-          schema:
-            type: integer
-          description: ID của người dùng để theo dõi hành động (không ảnh hưởng đến kết quả truy vấn)
       responses:
         "200":
           description: Thành công - Chi tiết thử thách bài đăng
