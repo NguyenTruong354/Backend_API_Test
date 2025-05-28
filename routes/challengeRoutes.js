@@ -1,10 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const challengeController = require('../controller/challengeController');
-// const { authenticate } = require('../middleware/auth');
-
-// // All routes require authentication
-// router.use(authenticate);
 
 // Middleware: Lấy userId từ query string và gán vào req.user cho controller dùng
 router.use((req, res, next) => {
@@ -15,16 +11,16 @@ router.use((req, res, next) => {
 
 /**
  * @route   GET /api/challenges
- * @desc    Get all challenges for authenticated user
- * @access  Private
+ * @desc    Get all post challenges
+ * @access  Public
  */
 router.get('/', challengeController.getAllChallenges);
 
 /**
  * @route   GET /api/challenges/:id
- * @desc    Get a challenge by ID
- * @access  Private
+ * @desc    Get a post challenge by ID
+ * @access  Public
  */
-router.get('/:id', challengeController.getChallenge);
+router.get('/:id', challengeController.getChallengeById);
 
 module.exports = router;

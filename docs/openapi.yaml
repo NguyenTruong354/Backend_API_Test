@@ -1,97 +1,95 @@
 openapi: 3.0.0
 info:
-  title: Challenge API
+  title: API Thử Thách
   version: 1.0.0
-  description: API để lấy thông tin các challenge, có thể lọc theo community_member_id
+  description: API để lấy thông tin các thử thách bài đăng, có thể lọc theo ID người dùng
 servers:
   - url: http://localhost:5000
-    description: Local server
+    description: Máy chủ cục bộ
 paths:
   /api/challenges:
     get:
-      summary: Lấy danh sách challenge theo community_member_id
+      summary: Lấy danh sách các thử thách bài đăng
       parameters:
         - in: query
           name: userId
           required: false
           schema:
             type: integer
-          description: ID của thành viên cộng đồng để lọc challenge
+          description: ID của người dùng để lọc các thử thách
       responses:
-        '200':
-          description: Danh sách challenge
+        "200":
+          description: Danh sách các thử thách bài đăng
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Challenge'
+                  $ref: "#/components/schemas/PostChallenge"
   /api/challenges/{id}:
     get:
-      summary: Lấy chi tiết challenge theo ID và community_member_id
+      summary: Lấy chi tiết thử thách bài đăng theo ID
       parameters:
         - in: path
           name: id
           required: true
           schema:
             type: integer
-          description: ID của challenge
+          description: ID của thử thách bài đăng
         - in: query
           name: userId
           required: false
           schema:
             type: integer
-          description: ID của thành viên cộng đồng (để kiểm tra quyền truy cập hoặc lọc)
+          description: ID của người dùng để lọc thử thách
       responses:
-        '200':
-          description: Chi tiết challenge
+        "200":
+          description: Chi tiết thử thách bài đăng
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Challenge'
-        '404':
-          description: Không tìm thấy challenge
+                $ref: "#/components/schemas/PostChallenge"
+        "404":
+          description: Không tìm thấy thử thách bài đăng
 components:
   schemas:
-    Challenge:
+    PostChallenge:
       type: object
       properties:
         id:
           type: integer
           example: 1
-        title:
+        type:
           type: string
-          example: "Challenge đầu tiên"
-        description:
-          type: string
-          example: "Chi tiết về challenge"
-        reward_type:
-          type: string
-          enum: ["points", "voucher", "badge", "other"]
-          example: "points"
-        reward_value:
-          type: string
-          example: "100"
+          enum: ["comment", "event"]
+          example: "comment"
+        promo_id:
+          type: integer
+          example: 101
+          nullable: true
+        challenge_id:
+          type: integer
+          example: 201
+          nullable: true
+        post_id:
+          type: integer
+          example: 301
+          nullable: true
+        event_id:
+          type: integer
+          example: 401
+          nullable: true
+        is_show:
+          type: boolean
+          example: false
+        points_reward:
+          type: integer
+          example: 100
         due_date:
           type: string
           format: date-time
           example: "2025-06-01T00:00:00Z"
-        status:
-          type: string
-          enum: ["pending", "done"]
-          example: "pending"
-        is_weekly:
-          type: boolean
-          example: false
-        recurrence_rule:
-          type: object
-          example: {}
-        community_member_id:
-          type: integer
-          example: 1
-        comments_count:
-          type: integer
-          example: 0
+          nullable: true
         created_at:
           type: string
           format: date-time

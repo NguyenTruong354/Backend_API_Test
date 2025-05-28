@@ -33,7 +33,7 @@ npm install
 ### 3. Thiết lập cấu hình
 - Tạo file `.env` ở thư mục gốc với nội dung ví dụ:
 ```
-DB_NAME=data_apilothub
+DB_NAME=Vietnamisawesome
 DB_USER=root
 DB_PASSWORD=1234
 DB_HOST=localhost
@@ -54,8 +54,8 @@ node index.js
 ### 5. Truy cập API
 - Mặc định API sẽ chạy trên `http://localhost:5000`
 - Một số endpoint mẫu:
-  - `GET /api/challenges?userId=1` — Lấy danh sách challenge của user
-  - `GET /api/challenges/:id?userId=1` — Lấy chi tiết 1 challenge
+  - `GET /api/challenges` — Lấy tất cả postchallenge
+  - `GET /api/challenges/:id` — Lấy chi tiết 1 challenge
   - (Các endpoint khác xem trong thư mục `routes/`)
 - API chạy swagger: `http://localhost:5000/api-docs`
 
