@@ -20,7 +20,7 @@ const getAllChallenges = async (req, res) => {
     });
 
     return res.status(200).json(
-      successResponse('Post challenges retrieved successfully', challenges)
+      successResponse('Post challenges retrieved successfully', challenges, 200)
     );
   } catch (error) {
     logger.error({
@@ -31,7 +31,7 @@ const getAllChallenges = async (req, res) => {
     });
 
     return res.status(500).json(
-      errorResponse('Failed to retrieve post challenges', error.message)
+      errorResponse('Failed to retrieve post challenges', error.message, 500)
     );
   }
 };
@@ -56,7 +56,7 @@ const getChallengeById = async (req, res) => {
       });
 
       return res.status(404).json(
-        errorResponse(`Post challenge with ID ${challengeId} not found`)
+        errorResponse(`Post challenge with ID ${challengeId} not found`, null, 404)
       );
     }
 
@@ -67,7 +67,7 @@ const getChallengeById = async (req, res) => {
     });
 
     return res.status(200).json(
-      successResponse('Post challenge retrieved successfully', challenge)
+      successResponse('Post challenge retrieved successfully', challenge, 200)
     );
   } catch (error) {
     logger.error({
@@ -79,7 +79,7 @@ const getChallengeById = async (req, res) => {
     });
 
     return res.status(500).json(
-      errorResponse('Failed to retrieve post challenge', error.message)
+      errorResponse('Failed to retrieve post challenge', error.message, 500)
     );
   }
 };
