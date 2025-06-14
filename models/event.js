@@ -1,11 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
     const Event = sequelize.define('Event', {
-        id: {
+        event_id: {
             type: DataTypes.BIGINT,
             primaryKey: true,
             autoIncrement: true
         },
-        name: {
+        ten_events: {
             type: DataTypes.STRING,
             allowNull: false
         },
@@ -48,9 +48,12 @@ module.exports = (sequelize, DataTypes) => {
         },
         description: {
             type: DataTypes.TEXT
-        },
-        price: {
+        },        price: {
             type: DataTypes.STRING(50)
+        },
+        ticket_type: {
+            type: DataTypes.ENUM('free', 'paid', 'donation'),
+            defaultValue: 'free'
         },
         max_attendees: {
             type: DataTypes.INTEGER
