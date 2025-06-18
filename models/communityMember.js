@@ -2,19 +2,74 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const CommunityMember = sequelize.define('community_members', {
-    id: { type: DataTypes.BIGINT, primaryKey: true },
-    first_name: DataTypes.STRING,
-    last_name: DataTypes.STRING,
-    headline: DataTypes.TEXT,
-    created_at: DataTypes.DATE,
-    updated_at: DataTypes.DATE,
-    last_seen_at: DataTypes.DATE,
-    profile_confirmed_at: DataTypes.DATE,
-    community_id: DataTypes.BIGINT,
-    profile_url: DataTypes.TEXT,
-    public_uid: DataTypes.STRING,
-    profile_fields: DataTypes.JSON,
-    pages: DataTypes.JSON
+  community_member_id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  first_name: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+  },
+  last_name: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+  },
+  ten_community_members: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  email: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  avatar_url: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  location: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  posts_count: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+  },
+  comments_count: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+  },
+  total_points: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+  },
+  current_level_name: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
+  points_to_next_level: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+  },
+}, {
+  tableName: 'community_members',
+  timestamps: false,
 });
 
 module.exports = CommunityMember;
