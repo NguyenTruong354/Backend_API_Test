@@ -8,13 +8,16 @@ class PostChallengeRepository {
         this.model = PostChallenge;
         this.Event = Event;
         this.Post = Post;
-    }/**
+    }
+
+    /**
      * Lấy tất cả danh sách PostChallenge.
      * @returns {Promise<Array<object>>} - Danh sách tất cả PostChallenge.
      * @throws {Error} - Ném lỗi nếu có vấn đề khi lấy danh sách PostChallenge.
-     */    async getAllPostChallenges() {
+     */
+    async getAllPostChallenges() {
         try {
-            // Lấy tất cả PostChallenge 
+            // Lấy tất cả PostChallenge trước, loại trừ challenge_id
             const postChallenges = await this.model.findAll({
                 attributes: { exclude: ['challenge_id'] },
                 order: [['created_at', 'DESC']]
@@ -52,12 +55,15 @@ class PostChallengeRepository {
         } catch (error) {
             throw new Error(`Lỗi khi lấy danh sách PostChallenge: ${error.message}`);
         }
-    }/**
+    }
+
+    /**
      * Lấy một PostChallenge cụ thể bằng ID.
      * @param {number|string} id - ID của PostChallenge.
      * @returns {Promise<object>} - Đối tượng PostChallenge.
      * @throws {Error} - Ném lỗi nếu không tìm thấy PostChallenge hoặc có lỗi truy vấn.
-     */    async getPostChallengeById(id) {
+     */
+    async getPostChallengeById(id) {
         try {
             if (!id) {
                 throw new Error('ID PostChallenge không được để trống');
