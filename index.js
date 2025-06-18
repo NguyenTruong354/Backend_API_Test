@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const sequelize = require('./config/database');
 const challengeRoutes = require('./routes/challengeRoutes');
+const memberChallengesRoutes = require('./routes/memberChallengesRoutes');
 const swaggerUi = require('swagger-ui-express');
 const yaml = require('js-yaml');
 const fs = require('fs');
@@ -23,6 +24,7 @@ const port = process.env.PORT || 5000;
 
 app.get('/', (req, res) => res.send('Hello World!'));
 app.use('/api/challenges', challengeRoutes);
+app.use('/api/member-challenges', memberChallengesRoutes);
 
 // Sync Sequelize models with database
 sequelize.sync({ force: false }).then(() => {
