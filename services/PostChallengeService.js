@@ -4,9 +4,7 @@ const { Op } = require('sequelize');
 class PostChallengeService {
     constructor() {
         this.postChallengeRepository = new PostChallengeRepository();
-    }
-
-    /**
+    }    /**
      * Lấy tất cả danh sách PostChallenge với bộ lọc tùy chọn.
      * @param {Object} filters - Các điều kiện lọc (type, is_show, post_id, event_id)
      * @returns {Promise<Array<object>>} - Danh sách tất cả PostChallenge.
@@ -14,29 +12,29 @@ class PostChallengeService {
      */
     async getAllPostChallenges(filters = {}) {
         try {
-            const whereCondition = {};
+            // Lấy tất cả PostChallenge với join
+            const allPostChallenges = await this.postChallengeRepository.getAllPostChallenges();
             
-            // Áp dụng các bộ lọc
+            // Áp dụng bộ lọc nếu có
+            let filteredPostChallenges = allPostChallenges;
+            
             if (filters.type) {
-                whereCondition.type = filters.type;
+                filteredPostChallenges = filteredPostChallenges.filter(pc => pc.type === filters.type);
             }
             
             if (filters.is_show !== undefined) {
-                whereCondition.is_show = filters.is_show;
+                filteredPostChallenges = filteredPostChallenges.filter(pc => pc.is_show === filters.is_show);
             }
             
             if (filters.post_id) {
-                whereCondition.post_id = filters.post_id;
+                filteredPostChallenges = filteredPostChallenges.filter(pc => pc.post_id === filters.post_id);
             }
             
             if (filters.event_id) {
-                whereCondition.event_id = filters.event_id;
+                filteredPostChallenges = filteredPostChallenges.filter(pc => pc.event_id === filters.event_id);
             }
             
-            // Cần bổ sung phương thức mới vào Repository để hỗ trợ lọc
-            const postChallenges = await this.postChallengeRepository.getPostChallengesWithFilters(whereCondition);
-            
-            return postChallenges;
+            return filteredPostChallenges;
         } catch (error) {
             throw new Error(`Failed to retrieve post challenges: ${error.message}`);
         }
