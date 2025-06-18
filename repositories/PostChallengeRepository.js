@@ -1,11 +1,7 @@
 const { Op } = require('sequelize');
-const sequelize = require('../config/database');
-const { DataTypes } = require('sequelize');
-
-// Import và khởi tạo models
 const PostChallenge = require('../models/postChallenge');
-const Event = require('../models/event')(sequelize, DataTypes);
-const Post = require('../models/post')(sequelize, DataTypes);
+const Event = require('../models/event');
+const Post = require('../models/post');
 
 class PostChallengeRepository {
     constructor() {
@@ -18,7 +14,7 @@ class PostChallengeRepository {
      * @throws {Error} - Ném lỗi nếu có vấn đề khi lấy danh sách PostChallenge.
      */    async getAllPostChallenges() {
         try {
-            // Lấy tất cả PostChallenge trước, loại trừ challenge_id
+            // Lấy tất cả PostChallenge 
             const postChallenges = await this.model.findAll({
                 attributes: { exclude: ['challenge_id'] },
                 order: [['created_at', 'DESC']]
