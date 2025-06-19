@@ -31,4 +31,13 @@ router.get('/:id', (req, res) => {
   memberChallengesController.getMemberChallengeById(req, res);
 });
 
+/**
+ * @route POST /api/member-challenges
+ * @desc Tạo một member challenge mới
+ * @access Private
+ */
+router.post('/', (req, res) => {
+  memberChallengesController.createMemberChallenge(req, res);
+});
+
 module.exports = router;

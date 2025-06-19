@@ -81,6 +81,46 @@ class MemberChallengesController {
                 error: error.message
             });
         }
+    }    /**
+     * Tạo một MemberChallenge mới.
+     * @param {object} req - Request object.
+     * @param {object} res - Response object.
+     * @returns {Promise<void>}
+     */
+    async createMemberChallenge(req, res) {
+        try {
+            const memberChallengeData = req.body;
+
+            // Validate dữ liệu đầu vào từ request
+            if (!memberChallengeData) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Dữ liệu không được để trống'
+                });
+            }
+
+            const { community_member_id, post_challenge_id } = memberChallengeData;
+
+            // Validate các trường bắt buộc
+            if (!community_member_id || !post_challenge_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Community Member ID và Post Challenge ID là bắt buộc'
+                });
+            }
+
+            const result = await this.memberChallengesService.createMemberChallenge(memberChallengeData);
+            
+            res.status(201).json(result);
+        } catch (error) {
+            console.error('Lỗi trong createMemberChallenge controller:', error);
+            
+            res.status(500).json({
+                success: false,
+                message: 'Lỗi server khi tạo MemberChallenge',
+                error: error.message
+            });
+        }
     }
 }
 

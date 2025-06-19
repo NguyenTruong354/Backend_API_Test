@@ -40,32 +40,38 @@ class MemberChallengesService {
         } catch (error) {
             throw new Error(`Lỗi trong service khi lấy MemberChallenge theo ID: ${error.message}`);
         }
-    }
-
-    /**
+    }    /**
      * Tạo một MemberChallenge mới.
-     * @param {object} memberChallengeData - Dữ liệu MemberChallenge mới.
+     * @param {object} memberChallengeData - Dữ liệu của MemberChallenge cần tạo.
      * @param {number} memberChallengeData.community_member_id - ID của community member.
      * @param {number} memberChallengeData.post_challenge_id - ID của post challenge.
-     * @param {boolean} [memberChallengeData.joined=false] - Trạng thái đã tham gia.
-     * @param {boolean} [memberChallengeData.commented=false] - Trạng thái đã comment.
-     * @returns {Promise<object>} - Đối tượng MemberChallenge đã tạo.
+     * @param {boolean} [memberChallengeData.joined=false] - Trạng thái tham gia.
+     * @param {boolean} [memberChallengeData.commented=false] - Trạng thái bình luận.
+     * @returns {Promise<object>} - Đối tượng MemberChallenge vừa được tạo.
      * @throws {Error} - Ném lỗi nếu có vấn đề khi tạo MemberChallenge.
      */
     async createMemberChallenge(memberChallengeData) {
         try {
-            // Validate required fields
+            // Validate dữ liệu đầu vào
             this.validateMemberChallengeData(memberChallengeData);
 
-            // Set default values if not provided
-            const data = {
-                community_member_id: memberChallengeData.community_member_id,
-                post_challenge_id: memberChallengeData.post_challenge_id,
+            // Chuẩn bị dữ liệu với giá trị mặc định
+            const processedData = {
+                community_member_id: parseInt(memberChallengeData.community_member_id),
+                post_challenge_id: parseInt(memberChallengeData.post_challenge_id),
                 joined: memberChallengeData.joined || false,
-                commented: memberChallengeData.commented || false,
+                commented: memberChallengeData.commented || false
             };
 
-            return await this.memberChallengeRepository.createMemberChallenge(data);
+            // Tạo member challenge mới
+            const newMemberChallenge = await this.memberChallengeRepository
+                .createMemberChallenge(processedData);
+
+            return {
+                success: true,
+                message: 'Tạo member challenge thành công',
+                data: newMemberChallenge
+            };
         } catch (error) {
             throw new Error(`Lỗi trong service khi tạo MemberChallenge: ${error.message}`);
         }
@@ -191,9 +197,7 @@ class MemberChallengesService {
         } catch (error) {
             throw new Error(`Lỗi trong service khi lấy MemberChallenge theo Post Challenge ID: ${error.message}`);
         }
-    }
-
-    /**
+    }    /**
      * Validate dữ liệu MemberChallenge.
      * @param {object} data - Dữ liệu cần validate.
      * @throws {Error} - Ném lỗi nếu dữ liệu không hợp lệ.
@@ -203,12 +207,20 @@ class MemberChallengesService {
             throw new Error('Dữ liệu MemberChallenge không được để trống');
         }
 
-        if (!data.community_member_id || isNaN(data.community_member_id)) {
-            throw new Error('Community Member ID là bắt buộc và phải là một số');
+        if (!data.community_member_id) {
+            throw new Error('Community Member ID là bắt buộc');
         }
 
-        if (!data.post_challenge_id || isNaN(data.post_challenge_id)) {
-            throw new Error('Post Challenge ID là bắt buộc và phải là một số');
+        if (isNaN(data.community_member_id) || parseInt(data.community_member_id) <= 0) {
+            throw new Error('Community Member ID phải là một số dương');
+        }
+
+        if (!data.post_challenge_id) {
+            throw new Error('Post Challenge ID là bắt buộc');
+        }
+
+        if (isNaN(data.post_challenge_id) || parseInt(data.post_challenge_id) <= 0) {
+            throw new Error('Post Challenge ID phải là một số dương');
         }
 
         if (data.joined !== undefined && typeof data.joined !== 'boolean') {
